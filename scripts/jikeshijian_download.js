@@ -27,12 +27,12 @@ const CLASS_COMMENT_ITEM = ".comment-item";
 const CLASS_MORE_TEXT = "._2r3UB1GX_0";
 const CLASS_COMMENT_TEXT = "._3M6kV3zb_0";
 const CLASS_COMMENT_TEXT_SPREAD = "._3D2NkqD6_0";
-const CLASS_TITLE = ".title";
+const CLASS_ARTICLE = ".article";
 
 const MAPPING = {};
 MAPPING[CLASS_ARTICLE_TITLE] = "._3QuafcgX_0";
 MAPPING[CLASS_COMMENT_ITEM] = ".reJj6Thl_0";
-MAPPING[CLASS_TITLE] = ".d4s24Cak_0";
+MAPPING[CLASS_ARTICLE] = ".d4s24Cak_0";
 
 
 const $ = function (selector) {
@@ -266,11 +266,19 @@ function handle_iframe(iframe) {
         nodes[0].setAttribute("src", audioUrl);
         nodes[0].setAttribute("controls", "controls")
     }
-    var articleNode = iframe.contentDocument.getElementsByClassName("article");
-    if (articleNode && articleNode.length > 0) {
-        articleNode[0].classList.remove("fade-enter");
-        articleNode[0].classList.remove("fade-enter-active")
+    const articleNode = iframe.$(CLASS_ARTICLE);
+    if (articleNode) {
+        for (let i = articleNode.classList.length - 1; i >= 0; i--) {
+            let it = articleNode.classList[i];
+            if (it.startsWith("fade")) {
+                articleNode.classList.remove(it)
+            }
+        }
     }
+    const opcityNodes = iframe.$$("._2XuSxNZp_0");
+    opcityNodes.forEach(it=>{
+       it.classList.remove("_2XuSxNZp_0");
+    });
 
     iframe.$$(CLASS_MORE_TEXT).forEach((it) => {
         it.remove()
