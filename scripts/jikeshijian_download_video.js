@@ -19,7 +19,7 @@
 *************************************************/
 
 // 下载最新的文章数量, 这个自己改，0表示下载全部
-var LASTLY_COUNT = 0
+var LASTLY_COUNT = 0;
 
 var ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
 var ARTICLE_DETAIL_URL = "https://time.geekbang.org/course/detail/COLUMN-ARTICLE_ID";

@@ -16,46 +16,11 @@
 
  *************************************************/
 const LASTLY_COUNT = 0;
-const ONLY_DOWNLOAD_URLS = false;
-
+const TEMPLATE_URL = "https://raw.githubusercontent.com/VeHan/egg-pie/master/template/templete_html.html";
 const ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
-const ARTICLE_DETAIL_URL = "https://time.geekbang.org/column/article/";
 const ARTICLE_DETAIL_JSON = "https://time.geekbang.org/serv/v1/article";
 const ARTICLE_COMMENT_JSON = "https://time.geekbang.org/serv/v1/comments";
-const CLASS_ARTICLE_TITLE = ".article-title";
-const CLASS_COMMENT_ITEM = ".comment-item";
-const CLASS_MORE_TEXT = "._2r3UB1GX_0";
-const CLASS_COMMENT_TEXT = "._3M6kV3zb_0";
-const CLASS_COMMENT_TEXT_SPREAD = "._3D2NkqD6_0";
-const CLASS_ARTICLE = ".article";
 
-const MAPPING = {};
-MAPPING[CLASS_ARTICLE_TITLE] = "._3QuafcgX_0";
-MAPPING[CLASS_COMMENT_ITEM] = ".reJj6Thl_0";
-MAPPING[CLASS_ARTICLE] = ".d4s24Cak_0";
-
-
-const $ = function (selector) {
-    if (selector in MAPPING) {
-        selector = MAPPING[selector]
-    }
-    let doc = document;
-    if (this.tagName === "IFRAME") {
-        doc = this.contentDocument;
-    }
-    return doc.querySelector(selector)
-};
-
-const $$ = function (selector) {
-    if (selector in MAPPING) {
-        selector = MAPPING[selector]
-    }
-    let doc = document;
-    if (this.tagName === "IFRAME") {
-        doc = this.contentDocument;
-    }
-    return doc.querySelectorAll(selector)
-};
 
 Date.prototype.format = function (fmt) {
     var o = {
@@ -78,8 +43,10 @@ Date.prototype.format = function (fmt) {
     return fmt;
 };
 
-function className(cls) {
-    return cls.replace(".", "")
+function ctime2Str(ctime) {
+    let date = new Date();
+    date.setTime(ctime * 1000);
+    return date.format("yyyy-MM-dd");
 }
 
 function postData(url, data) {
@@ -101,200 +68,50 @@ function postData(url, data) {
 }
 
 
-function getAllArticles(allArticles, column) {
-
-    params = {"cid": column, "size": 20, "prev": 0, "order": "newest"};
-
-    getOnceArticles(allArticles, params)
-}
-
-function getOnceArticles(allArticles, params) {
-    postData(ARTICLES_URL, params)
-        .then(data => {
-            if (data.code === 0) {
-                allArticles = allArticles.concat(data.data.list);
-                if (data.data.page.more) {
-                    params.prev = data.data.list[params.size - 1].score;
-                    getOnceArticles(allArticles, params)
-                } else {
-                    console.log("获取所有article完毕");
-                    allArticles.reverse();
-                    if (LASTLY_COUNT > 0) {
-                        allArticles = allArticles.slice(allArticles.length - LASTLY_COUNT)
-                    }
-                    console.log(allArticles);
-                    viewArticles(allArticles)
-                }
+async function getAllArticles(column) {
+    let allArticles = [];
+    let params = {"cid": column, "size": 20, "prev": 0, "order": "newest"};
+    while (true) {
+        let data = await postData(ARTICLES_URL, params);
+        if (data.code === 0) {
+            allArticles = allArticles.concat(data.data.list);
+            if (data.data.page.more) {
+                params.prev = data.data.list[params.size - 1].score;
             } else {
-                console.error("脚本执行失败")
+                console.log("获取所有article完毕");
+                allArticles.reverse();
+                if (LASTLY_COUNT > 0) {
+                    allArticles = allArticles.slice(allArticles.length - LASTLY_COUNT)
+                }
+                console.log(allArticles);
+                break;
             }
-        }) // JSON from `response.json()` call
-        .catch(error => console.error(error))
-}
-
-function viewArticles(allArticles) {
-    iframe = document.createElement("iframe");
-    iframe.id = "iframe";
-    document.getElementsByTagName("body")[0].appendChild(iframe);
-
-    iframe.$ = $;
-    iframe.$$ = $$;
-
-    viewArticle(allArticles, 0)
-}
-
-function viewArticle(allArticles, n) {
-    if (n >= allArticles.length) {
-
-        doSave(JSON.stringify(allAudioUrls), "text/json", "音频.json");
-        console.log("END...");
-        return;
-    }
-
-
-    article = allArticles[n];
-
-    if (ONLY_DOWNLOAD_URLS) {
-        console.log(article.article_title + "   加载成功");
-        postData(ARTICLE_DETAIL_JSON, {id: article.id})
-            .then(data => {
-                if (data.code === 0) {
-                    audioUrl = data.data.audio_download_url;
-                    allAudioUrls.push({"title": article.article_title, "url": audioUrl});
-                    viewArticle(allArticles, n + 1)
-                } else {
-                    console.error("脚本执行失败")
-                }
-            }) // JSON from `response.json()` call
-            .catch(error => console.error(error));
-        return
-    }
-
-    var iframeSrc = ARTICLE_DETAIL_URL + article.id;
-    var iframe = document.getElementById("iframe");
-    iframe.setAttribute("src", iframeSrc);
-
-    iframe.onload = () => {
-        console.log(article.article_title + "   加载成功");
-        postData(ARTICLE_DETAIL_JSON, {id: article.id})
-            .then(async data => {
-                if (data.code === 0) {
-                    audioUrl = data.data.audio_download_url;
-                    allAudioUrls.push({"title": article.article_title, "url": audioUrl});
-
-                    await waitTitle(iframe);
-                    await loadingAllComments(iframe);
-                    handle_iframe(iframe);
-                    viewArticle(allArticles, n + 1)
-                } else {
-                    console.error("脚本执行失败")
-                }
-            }) // JSON from `response.json()` call
-            .catch(error => console.error(error))
-    }
-
-}
-
-async function waitTitle(iframe) {
-
-    return new Promise(resolve => {
-
-        const title = iframe.$(CLASS_ARTICLE_TITLE);
-        if (!title) {
-            // 没有加载完，等待加载完毕
-            console.log("waiting...");
-            const handle = setInterval(function () {
-                const title = iframe.$(CLASS_ARTICLE_TITLE);
-                if (!title) {
-                    console.log("waiting...")
-                } else {
-                    clearInterval(handle);
-                    resolve(true)
-                }
-            }, 1000);
         } else {
-            resolve(true)
-        }
-    });
-
-}
-
-async function loadingAllComments(iframe) {
-    return new Promise(async resolve => {
-        let result = await postData(ARTICLE_COMMENT_JSON, {aid: article.id});
-        let data = result.data;
-        if (result.code === 0) {
-            const count = data.page.count;
-            let waitingTimes = 0;
-            let lastLoadCount = 0;
-
-            const commentItems = iframe.$$(CLASS_COMMENT_ITEM);
-            if (commentItems.length !== count) {
-                // 没有加载完，等待加载完毕
-                console.log("waiting...");
-                iframe.contentWindow.scrollTo(0, iframe.$("#app").scrollHeight);
-                const handle = setInterval(function () {
-                    const commentItems = iframe.$$(CLASS_COMMENT_ITEM);
-                    if (commentItems.length !== count) {
-                        if (lastLoadCount === commentItems.length) {
-                            if (waitingTimes > 10) {
-                                clearInterval(handle);
-                                resolve(true)
-                            }
-                            waitingTimes++
-                        } else {
-                            lastLoadCount = commentItems.length;
-                            waitingTimes = 0
-                        }
-                        console.log("waiting...");
-                        iframe.contentWindow.scrollTo(0, iframe.$("#app").scrollHeight)
-                    } else {
-                        clearInterval(handle);
-                        resolve(true)
-                    }
-                }, 200);
-                return;
-            }
-            resolve(true)
-        }
-    });
-}
-
-function handle_iframe(iframe) {
-    var nodes = iframe.contentDocument.getElementsByTagName("audio");
-    if (nodes && nodes.length > 0) {
-        nodes[0].setAttribute("src", audioUrl);
-        nodes[0].setAttribute("controls", "controls")
-    }
-    const articleNode = iframe.$(CLASS_ARTICLE);
-    if (articleNode) {
-        for (let i = articleNode.classList.length - 1; i >= 0; i--) {
-            let it = articleNode.classList[i];
-            if (it.startsWith("fade")) {
-                articleNode.classList.remove(it)
-            }
+            console.error("脚本执行失败");
+            break;
         }
     }
-    const opcityNodes = iframe.$$("._2XuSxNZp_0");
-    opcityNodes.forEach(it=>{
-       it.classList.remove("_2XuSxNZp_0");
-    });
-
-    iframe.$$(CLASS_MORE_TEXT).forEach((it) => {
-        it.remove()
-    });
-    iframe.$$(CLASS_COMMENT_TEXT).forEach((it) => {
-        it.classList.add(className(CLASS_COMMENT_TEXT_SPREAD))
-    });
-
-    var content = iframe.contentDocument.getElementsByTagName("html")[0].innerHTML;
-    content = content.replace(/<script type[^<]+src="https:\/\/static001[^<]+><\/script>/g, "");
-
-    var date = new Date(article.article_ctime * 1000);
-    doSave(content, "text/html", date.format("yyMMdd-") + article.article_title + ".html");
-    console.log("下载" + article.article_title)
+    return allArticles;
 }
 
+async function getTemplate() {
+    return await fetch(TEMPLATE_URL).then(res => res.text());
+}
+
+async function getArticleComments(article) {
+    let comments = [];
+    let prev = 0;
+    while (true) {
+        let result = await postData(ARTICLE_COMMENT_JSON, {aid: article.id, prev: prev});
+
+        comments =  comments.concat(result.data.list);
+        if (!result.data.page.more) {
+            break;
+        }
+        prev = comments[comments.length - 1].score;
+    }
+    return comments;
+}
 
 function doSave(value, type, name) {
     var blob;
@@ -325,25 +142,86 @@ function doSave(value, type, name) {
     }
 }
 
-
-var arr = location.pathname.split("/");
-var column;
-for (var i in arr) {
-    if (arr[i] && !isNaN(arr[i])) {
-        column = arr[i];
-        break;
+async function downloadArticles(allArticles) {
+    for (let article of allArticles) {
+        await downloadArticle(article);
     }
 }
 
-console.log("获取column是" + column);
-if (LASTLY_COUNT > 0) {
-    console.log("下载最新" + LASTLY_COUNT + "篇")
+async function downloadArticle(article) {
+    let data = await postData(ARTICLE_DETAIL_JSON, {id: article.id});
+    if (data.code === 0) {
+        let article = data.data;
+        templateText = templateText.replace("${article_title}", article.article_title);
+        templateText = templateText.replace("${article_ctime}", ctime2Str(article.article_ctime));
+        templateText = templateText.replace("${author_name}", article.author_name);
+        templateText = templateText.replace("${audio_dubber}", article.audio_dubber);
+        templateText = templateText.replace("${article_content}", article.article_content);
+        templateText = templateText.replace("${audio_download_url}", article.audio_download_url);
+        templateText = templateText.replace("${article_cover}", article.article_cover);
+
+        let html = document.createElement("html");
+        html.innerHTML = templateText;
+
+        let commentTemplate = html.querySelector(".comment-template");
+        let commentUl = html.querySelector(".article-comments ul");
+
+        let comments = await getArticleComments(article);
+        for (let comment of comments) {
+            let commentItem = commentTemplate.cloneNode(true);
+            commentItem.classList.remove("comment-template");
+            commentItem.querySelector(".avatar").src = comment.user_header;
+            commentItem.querySelector(".username").innerText = comment.user_name;
+            commentItem.querySelector(".like-count").innerText = comment.like_count;
+            commentItem.querySelector(".comment-content").innerText = comment.comment_content;
+            commentItem.querySelector(".time").innerText = ctime2Str(comment.comment_ctime);
+            if (comment.replies) {
+                commentItem.querySelector(".reply-username").innerText = comment.replies[0].user_name;
+                commentItem.querySelector(".reply-content").innerText = comment.replies[0].content;
+                commentItem.querySelector(".reply-time").innerText = ctime2Str(comment.replies[0].ctime);
+            } else {
+                commentItem.querySelector(".reply").remove();
+            }
+            commentUl.appendChild(commentItem);
+        }
+
+
+        var content = html.innerHTML;
+        var date = new Date(article.article_ctime * 1000);
+        doSave(content, "text/html", date.format("yyMMdd-") + article.article_title + ".html");
+        console.log("下载" + article.article_title)
+
+    } else {
+        console.error("脚本执行失败")
+    }
 }
 
-allArticles = [];
-allAudioUrls = [];
 
-getAllArticles(allArticles, column);
+async function main() {
+    var arr = location.search.replace("?", "").split("&");
 
+    var column;
+    for (var i in arr) {
+        if (arr[i].startsWith("cid")) {
+            column = arr[i].replace("cid=", "");
+            break;
+        }
+    }
+
+    console.log("获取column是" + column);
+    if (LASTLY_COUNT > 0) {
+        console.log("下载最新" + LASTLY_COUNT + "篇")
+    }
+
+    let allArticles = await getAllArticles(column);
+    templateText = await getTemplate();
+    await downloadArticles(allArticles)
+
+}
+
+let templateText;
+
+
+main();
 
 
