@@ -15,7 +15,7 @@
  若有疑问，可以咨询QQ478263058
 
  *************************************************/
-const LASTLY_COUNT = 0;
+const LASTLY_COUNT = 5;
 const TEMPLATE_URL = "https://raw.githubusercontent.com/VeHan/egg-pie/master/template/templete_html.html";
 const ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
 const ARTICLE_DETAIL_JSON = "https://time.geekbang.org/serv/v1/article";
@@ -152,16 +152,17 @@ async function downloadArticle(article) {
     let data = await postData(ARTICLE_DETAIL_JSON, {id: article.id});
     if (data.code === 0) {
         let article = data.data;
-        templateText = templateText.replace("${article_title}", article.article_title);
-        templateText = templateText.replace("${article_ctime}", ctime2Str(article.article_ctime));
-        templateText = templateText.replace("${author_name}", article.author_name);
-        templateText = templateText.replace("${audio_dubber}", article.audio_dubber);
-        templateText = templateText.replace("${article_content}", article.article_content);
-        templateText = templateText.replace("${audio_download_url}", article.audio_download_url);
-        templateText = templateText.replace("${article_cover}", article.article_cover);
+        let content = templateText;
+        content = content.replace("${article_title}", article.article_title);
+        content = content.replace("${article_ctime}", ctime2Str(article.article_ctime));
+        content = content.replace("${author_name}", article.author_name);
+        content = content.replace("${audio_dubber}", article.audio_dubber);
+        content = content.replace("${article_content}", article.article_content);
+        content = content.replace("${audio_download_url}", article.audio_download_url);
+        content = content.replace("${article_cover}", article.article_cover);
 
         let html = document.createElement("html");
-        html.innerHTML = templateText;
+        html.innerHTML = content;
 
         let commentTemplate = html.querySelector(".comment-template");
         let commentUl = html.querySelector(".article-comments ul");
@@ -186,7 +187,7 @@ async function downloadArticle(article) {
         }
 
 
-        var content = html.innerHTML;
+        content = html.innerHTML;
         var date = new Date(article.article_ctime * 1000);
         doSave(content, "text/html", date.format("yyMMdd-") + article.article_title + ".html");
         console.log("下载" + article.article_title)
