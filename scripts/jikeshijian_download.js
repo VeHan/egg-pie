@@ -15,7 +15,7 @@
  若有疑问，可以咨询QQ478263058
 
  *************************************************/
-const LASTLY_COUNT = 5;
+const LASTLY_COUNT = 0;
 const TEMPLATE_URL = "https://raw.githubusercontent.com/VeHan/egg-pie/master/template/templete_html.html";
 const ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
 const ARTICLE_DETAIL_JSON = "https://time.geekbang.org/serv/v1/article";
@@ -197,18 +197,34 @@ async function downloadArticle(article) {
     }
 }
 
+async function getColumn(articleId) {
+    let data = await postData(ARTICLE_DETAIL_JSON, {id: articleId});
+    if (data.code === 0) {
+        let article = data.data;
+        return article.column_id;
+
+    } else {
+        console.error("脚本执行失败")
+    }
+}
+
 
 async function main() {
-    var arr = location.search.replace("?", "").split("&");
-
-    var column;
-    for (var i in arr) {
-        if (arr[i].startsWith("cid")) {
-            column = arr[i].replace("cid=", "");
-            break;
-        }
+    let column;
+    let path = location.pathname;
+    let arr = path.split("/");
+    if (arr.length-1 < 0) {
+        console.error("脚本执行失败")
+        return false;
     }
 
+    if (path.indexOf("/column/intro/") != -1) { 
+        column = arr[arr.length-1];
+    }
+    else {
+        column = await getColumn(arr[arr.length-1]);
+    }
+    
     console.log("获取column是" + column);
     if (LASTLY_COUNT > 0) {
         console.log("下载最新" + LASTLY_COUNT + "篇")
