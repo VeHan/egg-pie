@@ -153,7 +153,7 @@ async function downloadArticle(article) {
     if (data.code === 0) {
         let article = data.data;
         let content = templateText;
-        content = content.replace("${article_title}", article.article_title);
+        content = content.replace(/\${article_title}/g, article.article_title);
         content = content.replace("${article_ctime}", ctime2Str(article.article_ctime));
         content = content.replace("${author_name}", article.author_name);
         content = content.replace("${audio_dubber}", article.audio_dubber);
