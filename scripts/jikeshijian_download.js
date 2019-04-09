@@ -174,11 +174,11 @@ async function downloadArticle(article) {
             commentItem.querySelector(".avatar").src = comment.user_header;
             commentItem.querySelector(".username").innerText = comment.user_name;
             commentItem.querySelector(".like-count").innerText = comment.like_count;
-            commentItem.querySelector(".comment-content").innerText = comment.comment_content;
+            commentItem.querySelector(".comment-content").innerHTML = comment.comment_content;
             commentItem.querySelector(".time").innerText = ctime2Str(comment.comment_ctime);
             if (comment.replies) {
                 commentItem.querySelector(".reply-username").innerText = comment.replies[0].user_name;
-                commentItem.querySelector(".reply-content").innerText = comment.replies[0].content;
+                commentItem.querySelector(".reply-content").innerHTML = comment.replies[0].content;
                 commentItem.querySelector(".reply-time").innerText = ctime2Str(comment.replies[0].ctime);
             } else {
                 commentItem.querySelector(".reply").remove();
