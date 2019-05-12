@@ -233,7 +233,7 @@ function handle_iframe (iframe) {
       iframe.$(".course-main").append(video)
 
       hls_script =  document.createElement("script")
-      hls_script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest'
+      hls_script.src = 'https://cdn.jsdelivr.net/npm/hls.js'
       iframe.$("body").append(hls_script)
 
 
