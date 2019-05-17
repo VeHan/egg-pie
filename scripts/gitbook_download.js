@@ -148,7 +148,7 @@ gitbook  下载
               var selections =  $("#iframe").$$(".catalog_items_item");
               var selection = selections[start]
               selection.click()
-              var title = selection.getElementsByClassName("catalog_item_content_listen")[0].innerText
+              var title = selection.getElementsByClassName("catalog_item_content line_clamp_2")[0].innerText
               console.log("正在加载 " + title)
 
               waitFor(
