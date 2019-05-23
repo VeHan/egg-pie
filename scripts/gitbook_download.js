@@ -151,38 +151,41 @@ gitbook  下载
             console.log("END...")
             return;
         }
+       	setTimeout(function() {
+			 console.log("休息3秒...");
+			  waitFor(
+					() => iframe.contentWindow.clickOnTopic != null,
 
-        waitFor(
-            () => iframe.contentWindow.clickOnTopic != null,
-
-            () => {
-                var selections = $("#iframe").$$(".catalog_items_item");
-                var selection = selections[start]
-                selection.click()
-                var title
-                if (selection.getElementsByClassName("catalog_item_content")) {
-                    title = selection.getElementsByClassName("catalog_item_content")[0].innerText
-                } else {
-                    title = selection.getElementsByClassName("catalog_item_content_listen")[0].innerText
-                }
-                console.log("正在加载 " + title)
-
-                waitFor(
-                    () => isArticleLoadSuccess(title),
-                    () => {
-                        downloadArticle(start, title)
-                        viewArticle(start + 1, end)
-                    },
-                    () => {
-                        downloadArticle(start, title)
-                        viewArticle(start + 1, end)
-                    },
-                    0
-                )
-            },
-            () => { },
-            0
-        )
+					() => {
+						var selections = $("#iframe").$$(".catalog_items_item");
+						var selection = selections[start]
+						selection.click()
+						var title
+						if (selection.getElementsByClassName("catalog_item_content")) {
+							title = selection.getElementsByClassName("catalog_item_content")[0].innerText
+						} else {
+							title = selection.getElementsByClassName("catalog_item_content_listen")[0].innerText
+						}
+						console.log("正在加载 " + title)
+						
+						waitFor(
+							() => isArticleLoadSuccess(title),
+							() => {
+								downloadArticle(start, title)
+								viewArticle(start + 1, end)
+							},
+							() => {
+								downloadArticle(start, title)
+								viewArticle(start + 1, end)
+							},
+							0
+						)
+					},
+					() => { },
+					0
+				)
+			 
+		}, 3 * 1000);
 
     }
 
