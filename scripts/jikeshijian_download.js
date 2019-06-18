@@ -20,6 +20,8 @@ const TEMPLATE_URL = "https://raw.githubusercontent.com/VeHan/egg-pie/master/tem
 const ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
 const ARTICLE_DETAIL_JSON = "https://time.geekbang.org/serv/v1/article";
 const ARTICLE_COMMENT_JSON = "https://time.geekbang.org/serv/v1/comments";
+const DOWNLOAD_ARTICLE_TIMESPAN = 1000; // 请求文章间隔1000ms
+const REQUEST_COMMENT_TIME_GAP = 500; // 请求评论间隔500ms
 
 
 Date.prototype.format = function (fmt) {
@@ -67,6 +69,14 @@ function postData(url, data) {
         .then(response => response.json()) // parses response to JSON
 }
 
+async function sleep(ms){
+   return new Promise((resolve, reject) => {
+       setTimeout(()=>{
+           resolve();
+       }, ms);
+   });
+}
+
 
 async function getAllArticles(column) {
     let allArticles = [];
@@ -102,6 +112,7 @@ async function getArticleComments(article) {
     let comments = [];
     let prev = 0;
     while (true) {
+        await sleep(REQUEST_COMMENT_TIME_GAP);
         let result = await postData(ARTICLE_COMMENT_JSON, {aid: article.id, prev: prev});
 
         comments =  comments.concat(result.data.list);
@@ -144,6 +155,7 @@ function doSave(value, type, name) {
 
 async function downloadArticles(allArticles) {
     for (let article of allArticles) {
+        await sleep(DOWNLOAD_ARTICLE_TIMESPAN);
         await downloadArticle(article);
     }
 }
