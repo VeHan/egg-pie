@@ -71,7 +71,15 @@ gitbook chat  下载
   }
 
 
+  async function sleep( timeout){
+    return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve()          
+        }, timeout);
+    });
+  }
 
+  
   function doSave(value, type, name) {
       var blob;
       if (typeof window.Blob == "function") {
@@ -113,10 +121,21 @@ gitbook chat  下载
           headerLinks[i].href = href           
        } 
     }
-      var header = "<head>" + $("#iframe").$("head").innerHTML + "</head>"
-      var content = "<html>"+ header + "<body><div class='mainDiv'>" +
-         $("#iframe").$(".mainDiv").innerHTML + 
-         "</div></body></html>"
+    var headerLinks =  iframe.$$("script")
+    for (var i = 0; i < headerLinks.length; i++) {
+       if (headerLinks[i].tagName == "SCRIPT"){
+          if (headerLinks[i].src){
+            var src = headerLinks[i].src;
+            headerLinks[i].src = src;
+          }   
+       } 
+    }
+
+    var header = "<head>" + $("#iframe").$("head").innerHTML +  + "</head>"
+    var content = "<html>" +
+         $("#iframe").$("html").innerHTML + 
+         "</html>"
+        // console.log(content)
       var fileName =  title + ".html"
       doSave(content, "text/html", fileName)
       console.log("正在下载 " + fileName)
@@ -128,6 +147,12 @@ gitbook chat  下载
     await waitFor(()=>{
       return iframe.$("h1") && iframe.$("h1").innerText == article.title
     },10000)
+    let detail_href = iframe.$("#activityOrderBtn").href;
+    iframe.setAttribute("src", detail_href);
+    await waitFor(()=>{
+      return iframe.$("h2") && iframe.$("h2").innerText == article.title
+    },10000)
+    await sleep(1000); // 等待script加载完
     downloadArticle(article.title)
   }
 
@@ -157,7 +182,6 @@ gitbook chat  下载
     const article = articles[index];
     await viewArticle(article)      
   }
-
 
 })()
 
