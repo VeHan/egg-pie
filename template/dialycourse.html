@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>每日一课</title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style type="text/css">
+        .sidebar {
+            float: left;
+            width: 30%;
+        }
+
+        .content {
+            float: left;
+            width: 70%;
+        }
+
+        .video-list {
+            list-style: none;
+        }
+
+        li > a {
+            cursor: pointer;
+        }
+
+        .sku-list {
+            overflow: hidden;
+        }
+
+        .sku-list > li {
+            display: block;
+        }
+    </style>
+
+</head>
+<body>
+<div class="sidebar">
+    <div id="sidebar-template" style="display: none">
+        <h5>最新课程</h5>
+        <ul class="sku-list">
+            <li id="sku-template" style="display:none;">
+                <a href="#">基于微服务打造共享开发平台</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="content">
+    <video id="video" controls="controls" style="width: 100%;"></video>
+    <li id="video-template" style="display: none">
+        <a href="#">基于微服务打造共享开发平台</a>
+    </li>
+    <ul class="video-list">
+    </ul>
+</div>
+<script type="text/javascript" src="data.json"></script>
+<script type="text/javascript">
+
+
+    var $ = function (selector) {
+        return document.querySelector(selector)
+    };
+
+    var $$ = function (selector) {
+        return document.querySelectorAll(selector)
+    };
+
+    var blocks;
+
+
+    (async () => {
+
+        blocks = data;
+        blocks.forEach(block => {
+            let sidebarItem = $("#sidebar-template").cloneNode(true);
+            sidebarItem.id = block.block_id;
+            sidebarItem.querySelector("h5").innerText = block.block_title;
+            sidebarItem.style.display = 'list-item';
+
+            block.skus.forEach(sku => {
+                let skuItem = sidebarItem.querySelector("#sku-template").cloneNode(true);
+                skuItem.id = sku.id;
+                skuItem.style.display = 'list-item';
+                skuItem.querySelector("a").innerText = sku.title;
+                skuItem.querySelector("a").onclick = () => changeSku(sku.id);
+                sidebarItem.querySelector(".sku-list").appendChild(skuItem);
+            });
+            $(".sidebar").appendChild(sidebarItem);
+
+        });
+    })();
+
+
+    function playVideo(url) {
+        var video = document.getElementById("video");
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            })
+        } else {
+            if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = url;
+                video.addEventListener("loadedmetadata", function () {
+                })
+            }
+        }
+    }
+
+    function changeSku(skuId) {
+        blocks.forEach(block => {
+
+            block.skus.forEach(sku => {
+
+                if (sku.id === skuId) {
+                    let childNodes = $(".video-list").childNodes;
+                    for (let i = childNodes.length - 1; i >= 0; i--) {
+                        childNodes[i].remove()
+                    }
+                    sku.articles.forEach(article => {
+                        let videoItem = $("#video-template").cloneNode(true);
+                        videoItem.id = article.id;
+                        videoItem.style.display = 'list-item';
+                        let videoLink = videoItem.querySelector("a");
+                        videoLink.innerText = article.article_title;
+                        videoLink.onclick = () => {
+                            console.log(article.video_media_map.hd.url)
+                            playVideo(article.video_media_map.hd.url);
+                        };
+                        $(".video-list").appendChild(videoItem);
+                    });
+
+                    return true
+                }
+            });
+
+        });
+    }
+
+</script>
+</body>
+</html>

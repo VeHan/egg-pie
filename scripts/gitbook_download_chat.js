@@ -142,18 +142,23 @@ gitbook chat  下载
   }
 
   async function viewArticle(article) {
-    console.log(article)
-    iframe.setAttribute("src", article.href)
-    await waitFor(()=>{
-      return iframe.$("h1") && iframe.$("h1").innerText == article.title
-    },10000)
-    let detail_href = iframe.$("#activityOrderBtn").href;
-    iframe.setAttribute("src", detail_href);
-    await waitFor(()=>{
-      return iframe.$("h2") && iframe.$("h2").innerText == article.title
-    },10000)
-    await sleep(1000); // 等待script加载完
-    downloadArticle(article.title)
+    try {
+      console.log(article)
+      iframe.setAttribute("src", article.href)
+      await waitFor(()=>{
+        return iframe.$("h1") && iframe.$("h1").innerText == article.title
+      },10000)
+      let detail_href = iframe.$("#activityOrderBtn").href;
+      iframe.setAttribute("src", detail_href);
+      await waitFor(()=>{
+        return iframe.$("h2") && iframe.$("h2").innerText == article.title
+      },10000)
+      await sleep(1000); // 等待script加载完
+      downloadArticle(article.title)
+    } catch (error) {
+      downloadArticle(article.title)
+    }
+
   }
 
   let articles = [];
