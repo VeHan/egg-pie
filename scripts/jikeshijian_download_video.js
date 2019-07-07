@@ -20,6 +20,7 @@
 
 // 下载最新的文章数量, 这个自己改，0表示下载全部
 var LASTLY_COUNT = 0;
+var SLEEP_PER_ARTICLE = 1000; //每篇文章延时间隔(ms)
 
 var ARTICLES_URL = "https://time.geekbang.org/serv/v1/column/articles";
 var ARTICLE_DETAIL_URL = "https://time.geekbang.org/course/detail/COLUMN-ARTICLE_ID";
@@ -55,6 +56,13 @@ Date.prototype.format = function(fmt) {
     return fmt;
 }
 
+async function sleep(ms){
+  return new Promise((resolve, reject) => {
+      setTimeout(()=>{
+          resolve();
+      }, ms);
+  });
+}
 
 function postData(url, data) {
   // Default options are marked with *
@@ -105,7 +113,7 @@ function getOnceArticles(allArticles, params) {
   		.catch(error => console.error(error))
 }
 
-function viewArticles(allArticles) {
+async function viewArticles(allArticles) {
 	iframe = document.createElement("iframe")
 	iframe.id = "iframe"
 	document.getElementsByTagName("body")[0].appendChild(iframe)
@@ -118,14 +126,16 @@ function viewArticles(allArticles) {
     return this.contentDocument.querySelectorAll(selector)
   };
 
-	viewArticle(allArticles, 0)
+	await viewArticle(allArticles, 0)
 }
 
-function viewArticle(allArticles, n) {
+async function viewArticle(allArticles, n) {
 	if (n >= allArticles.length){
 		console.log("END...")
 		return;
 	}
+
+  await sleep(SLEEP_PER_ARTICLE);
 
 	article = allArticles[n]
 	var iframeSrc = ARTICLE_DETAIL_URL.replace("COLUMN", column).replace("ARTICLE_ID",article.id)
