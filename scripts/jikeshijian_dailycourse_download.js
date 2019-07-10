@@ -18,7 +18,7 @@
  *************************************************/
 
 
-
+const SLEEP_DURATION = 3000;
 const EXPLORE_ALL = "https://time.geekbang.org/serv/v2/explore/all";
 const EXPLORE_LIST = "https://time.geekbang.org/serv/v2/explore/list";
 const VIDEO_LIST = "https://time.geekbang.org/serv/v2/video/GetVideoList";
@@ -66,6 +66,14 @@ Date.prototype.format = function (fmt) {
     }
     return fmt;
 }
+
+async function sleep( timeout){
+    return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve()          
+        }, timeout);
+    });
+  }
 
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
@@ -143,6 +151,7 @@ async function getVideoListBySku(sku) {
     async function getVideoByCollect(cid) {
         let videos = await getMutilVideosByColumn(cid);
         await asyncForEach(videos, async (video) => {
+            await sleep(SLEEP_DURATION);
             let article = await getArticleById(video.article_id);
             sku.articles.push(article);
         });
@@ -164,6 +173,7 @@ async function getVideoListBySku(sku) {
         return
     }
     await asyncForEach(data.data, async (video) => {
+        await sleep(SLEEP_DURATION);
         let article = await getArticleById(video.article_id);
         sku.articles = [article];
     });
@@ -265,6 +275,7 @@ async function main() {
 
         block.skus = skus;
         await asyncForEach(skus, async (sku) => {
+            await sleep(SLEEP_DURATION);
             await getVideoListBySku(sku);
         })
     }))
