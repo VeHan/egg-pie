@@ -232,15 +232,16 @@ function handle_iframe (iframe) {
         articleNode[0].classList.remove("fade-enter-active")
       }
 
-      if (iframe.$(".vplayer")) {        
-        iframe.$(".vplayer").remove()
+      if (iframe.$("._3mrRWLH0_0")) {        
+        iframe.$("._3mrRWLH0_0").remove()
       }
 
       video =  document.createElement("video")
       video.id = "video"
       video.controls = "controls"
       video.style = "width:100%;"
-      iframe.$(".course-main").append(video)
+      iframe.$("._56KiEMXd_0").style.height = "";
+      iframe.$("._56KiEMXd_0").append(video)
 
       hls_script =  document.createElement("script")
       hls_script.src = 'https://cdn.jsdelivr.net/npm/hls.js'
