@@ -57,10 +57,11 @@ Date.prototype.format = function(fmt) {
 }
 
 async function sleep(ms){
+  let rand = Math.ceil(Math.random()*10);//生成[1,10]的随机数
   return new Promise((resolve, reject) => {
       setTimeout(()=>{
           resolve();
-      }, ms);
+      }, ms*rand);
   });
 }
 
