@@ -168,16 +168,19 @@ async function downloadArticle(article) {
         let article = data.data;
         let content = templateText;
         content = content.replace(/\${article_title}/g, article.article_title);
+        content = content.replace(/\${article_content}/g, article.article_content);
         content = content.replace("${article_ctime}", ctime2Str(article.article_ctime));
         content = content.replace("${author_name}", article.author_name);
-        content = content.replace("${audio_dubber}", article.audio_dubber);
-        content = content.replace(/\${article_content}/g, article.article_content);
-        content = content.replace("${audio_download_url}", article.audio_download_url);
-        content = content.replace("${article_cover}", article.article_cover);
-        if (article.video_media_map) {
-            content = content.replace(/\${video_url}/g, article.video_media_map.hd.url);
-        }
+        if (!article.video_media_map) {
 
+            content = content.replace("${audio_dubber}", article.audio_dubber);
+            content = content.replace("${audio_download_url}", article.audio_download_url);
+            content = content.replace("${article_cover}", article.article_cover);
+            content = content.replace("${video_display}", "none");
+        } else {
+            content = content.replace(/\${video_url}/g, article.video_media_map.hd.url);
+            content = content.replace("${article_display}", "none");
+        }
         let html = document.createElement("html");
         html.innerHTML = content;
 
@@ -237,6 +240,12 @@ async function main() {
 
     if (path.indexOf("/column/intro/") != -1) {
         column = arr[arr.length - 1];
+    }
+    else if (path.indexOf("/course/intro/") != -1) {
+        column = arr[arr.length - 1];
+    }
+    else if (path.indexOf("/course/detail/") != -1) {
+        column = arr[arr.length - 1].split("-")[0];
     }
     else {
         column = await getColumn(arr[arr.length - 1]);
