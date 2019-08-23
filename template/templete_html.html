@@ -1209,7 +1209,7 @@
             </h1>
             <div data-v-87ffcada="" class="article-info pd"><span data-v-87ffcada="">${article_ctime}</span> <span
                     data-v-87ffcada="">${author_name}</span></div>
-            <div data-v-87ffcada="" class="article-content typo common-content pd">
+            <div data-v-87ffcada="" style="display:${article_display}" class="article-content typo common-content pd">
                 <img data-v-87ffcada=""
                      src="${article_cover}">
                 <!---->
@@ -1226,6 +1226,26 @@
                 </div> <!---->
                 <div data-v-87ffcada="" class="copyright">
                     ©版权归极客邦科技所有，未经许可不得转载
+                </div>
+            </div>
+            <div style="display: ${video_display}">
+                <script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
+                <video id="video" controls width="100%">
+                </video>
+                <script>
+                    var video=document.getElementById("video");
+                    if(Hls.isSupported()){
+                        var hls=new Hls();hls.loadSource("${video_url}");
+                        hls.attachMedia(video);
+                        hls.on(Hls.Events.MANIFEST_PARSED,function(){})
+                    }else{
+                        if(video.canPlayType("application/vnd.apple.mpegurl")){
+                            video.src="${video_url}";video.addEventListener("loadedmetadata",function(){})
+                        }
+                    };
+                </script>
+                <div data-v-87ffcada="" id="article-content" class="">
+                        <div class="text">${article_content}</div>
                 </div>
             </div>
             <div data-v-87ffcada="" class="article-comments pd"><h2 data-v-87ffcada=""><span
