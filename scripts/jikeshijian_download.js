@@ -69,20 +69,20 @@ function postData(url, data) {
         .then(response => response.json()) // parses response to JSON
 }
 
-async function sleep(ms){
-	let rand = Math.ceil(Math.random()*10);//生成[1,10]的随机数
-	 
-   return new Promise((resolve, reject) => {
-       setTimeout(()=>{
-           resolve();
-       }, ms*rand);
-   });
+async function sleep(ms) {
+    let rand = Math.ceil(Math.random() * 10);//生成[1,10]的随机数
+
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, ms * rand);
+    });
 }
 
 
 async function getAllArticles(column) {
     let allArticles = [];
-    let params = {"cid": column, "size": 20, "prev": 0, "order": "newest"};
+    let params = { "cid": column, "size": 20, "prev": 0, "order": "newest" };
     while (true) {
         let data = await postData(ARTICLES_URL, params);
         if (data.code === 0) {
@@ -115,9 +115,9 @@ async function getArticleComments(article) {
     let prev = 0;
     while (true) {
         await sleep(REQUEST_COMMENT_TIME_GAP);
-        let result = await postData(ARTICLE_COMMENT_JSON, {aid: article.id, prev: prev});
+        let result = await postData(ARTICLE_COMMENT_JSON, { aid: article.id, prev: prev });
 
-        comments =  comments.concat(result.data.list);
+        comments = comments.concat(result.data.list);
         if (!result.data.page.more) {
             break;
         }
@@ -129,7 +129,7 @@ async function getArticleComments(article) {
 function doSave(value, type, name) {
     var blob;
     if (typeof window.Blob == "function") {
-        blob = new Blob([value], {type: type});
+        blob = new Blob([value], { type: type });
     } else {
         var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
         var bb = new BlobBuilder();
@@ -163,7 +163,7 @@ async function downloadArticles(allArticles) {
 }
 
 async function downloadArticle(article) {
-    let data = await postData(ARTICLE_DETAIL_JSON, {id: article.id});
+    let data = await postData(ARTICLE_DETAIL_JSON, { id: article.id });
     if (data.code === 0) {
         let article = data.data;
         let content = templateText;
@@ -171,9 +171,12 @@ async function downloadArticle(article) {
         content = content.replace("${article_ctime}", ctime2Str(article.article_ctime));
         content = content.replace("${author_name}", article.author_name);
         content = content.replace("${audio_dubber}", article.audio_dubber);
-        content = content.replace("${article_content}", article.article_content);
+        content = content.replace(/\${article_content}/g, article.article_content);
         content = content.replace("${audio_download_url}", article.audio_download_url);
         content = content.replace("${article_cover}", article.article_cover);
+        if (article.video_media_map) {
+            content = content.replace(/\${video_url}/g, article.video_media_map.hd.url);
+        }
 
         let html = document.createElement("html");
         html.innerHTML = content;
@@ -212,7 +215,7 @@ async function downloadArticle(article) {
 }
 
 async function getColumn(articleId) {
-    let data = await postData(ARTICLE_DETAIL_JSON, {id: articleId});
+    let data = await postData(ARTICLE_DETAIL_JSON, { id: articleId });
     if (data.code === 0) {
         let article = data.data;
         return article.column_id;
@@ -227,18 +230,18 @@ async function main() {
     let column;
     let path = location.pathname;
     let arr = path.split("/");
-    if (arr.length-1 < 0) {
+    if (arr.length - 1 < 0) {
         console.error("脚本执行失败")
         return false;
     }
 
-    if (path.indexOf("/column/intro/") != -1) { 
-        column = arr[arr.length-1];
+    if (path.indexOf("/column/intro/") != -1) {
+        column = arr[arr.length - 1];
     }
     else {
-        column = await getColumn(arr[arr.length-1]);
+        column = await getColumn(arr[arr.length - 1]);
     }
-    
+
     console.log("获取column是" + column);
     if (LASTLY_COUNT > 0) {
         console.log("下载最新" + LASTLY_COUNT + "篇")
