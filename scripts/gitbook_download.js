@@ -106,7 +106,7 @@ gitbook  下载
 
     function isArticleLoadSuccess(title) {
         console.log("waiting...")
-        return $("#iframe").$(".topicTitle") && $("#iframe").$(".topicTitle").innerText == title
+        return $("#iframe").$(".topic_title") && $("#iframe").$(".topic_title").innerText == title
     }
 
     function downloadArticle(index, title) {
@@ -120,6 +120,15 @@ gitbook  下载
                 headerLinks[i].href = href
             }
         }
+
+        var headerLinks = iframe.$$("script")
+        for (var i = 0; i < headerLinks.length; i++) {
+            if (headerLinks[i].tagName == "SCRIPT") {
+                var src = headerLinks[i].src
+                headerLinks[i].src = src
+            }
+        }
+
 
         if (iframe.$(".audioWrapper")) {
             iframe.$("#audio").controls = "controls"
@@ -136,11 +145,11 @@ gitbook  下载
             iframe.$(".column_topic_view").removeChild(pre_icon.parentNode)
         }
 
-        var header = "<head>" + $("#iframe").$("head").innerHTML + "</head>"
-
-        var content = "<html>" + header + "<body style='text-align:center;'><div class='column_topic_view' style='margin:auto;float:none;'>" +
-            $("#iframe").$(".column_topic_view").innerHTML +
-            "</div></body></html>"
+        // var header = "<head>" + $("#iframe").$("head").innerHTML + "</head>"
+        
+        var content = "<html>" + $("#iframe").$("html").innerHTML +
+            "</html>";
+        
         var fileName = formatNumber(index, 2) + "-" + title + ".html"
         doSave(content, "text/html", fileName)
         console.log("正在下载 " + fileName)
@@ -157,15 +166,12 @@ gitbook  下载
 					() => iframe.contentWindow.clickOnTopic != null,
 
 					() => {
-						var selections = $("#iframe").$$(".catalog_items_item");
+						var selections = $("#iframe").$$(".catelog_item");
 						var selection = selections[start]
-						selection.click()
-						var title
-						if (selection.getElementsByClassName("catalog_item_content")) {
-							title = selection.getElementsByClassName("catalog_item_content")[0].innerText
-						} else {
-							title = selection.getElementsByClassName("catalog_item_content_listen")[0].innerText
-						}
+                        selection.click()
+                        // console.log(selection.getElementsByClassName(".catelog_ready_title>h2"))
+						var title = selection.querySelector(".catelog_ready_title>h2").innerText;
+                            
 						console.log("正在加载 " + title)
 						
 						waitFor(
@@ -190,11 +196,11 @@ gitbook  下载
     }
 
 
-    if (!$(".lesson_intro")) {
+    if (!$(".column_title")) {
         console.error("页面没有加载完毕，请加载完后重试")
         return
     }
-    console.log("正在下载：" + $(".lesson_intro").text)
+    console.log("正在下载：" + $(".column_title").innerText)
 
 
     var iframe = document.createElement("iframe")
@@ -213,9 +219,10 @@ gitbook  下载
 
 
     iframe.onload = function () {
-        var selections = this.$$(".catalog_items_item");
+        var selections = this.$$(".catelog_item");
         var start = 0
         var end = selections.length - 1
+        // var end = 1
         viewArticle(start, end)
         iframe.onload = null
     }
