@@ -260,6 +260,7 @@ async function main() {
     templateText = await getTemplate();
     await downloadArticles(allArticles)
 
+    console.log("下载完成");
 }
 
 let templateText;
