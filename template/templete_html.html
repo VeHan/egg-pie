@@ -1217,9 +1217,27 @@
                     <div class="audio-info">
                         <p><span>朗读人：${audio_dubber}&nbsp;&nbsp;&nbsp;</span>
                         </p></div> <!---->
-                    <audio title=""
+                    <audio id="audio" title=""
                            src="${audio_download_url}"
                            controls="controls"></audio>
+                    <div class="audio-info">
+                        <p>播放倍速：
+                            <select id="selectRate">
+                                <option value="0.5">0.5</option>
+                                <option value="1" selected="">1.0</option>
+                                <option value="1.25">1.25</option>
+                                <option value="1.5">1.5</option>
+                                <option value="2">2.0</option>
+                            </select>
+                        </p>
+                    </div>
+                    <script>
+                        var audio = document.getElementById('audio');
+                        var eleSelect = document.getElementById('selectRate');
+                        eleSelect.addEventListener('change', function () {
+                            audio.playbackRate = this.value;
+                        });
+                    </script>
                 </div>
                 <div data-v-87ffcada="" id="article-content" class="">
                     <div class="text">${article_content}</div>
@@ -1232,7 +1250,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
                 <video id="video" controls width="100%">
                 </video>
-                <p>选择播放速率：
+                <p>选择播放倍速：
                     <select id="selectRate">
                         <option value="0.5">0.5</option>
                         <option value="1" selected>1.0</option>
