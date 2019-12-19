@@ -1222,7 +1222,7 @@
                            controls="controls"></audio>
                     <div class="audio-info">
                         <p>播放倍速：
-                            <select id="selectRate">
+                            <select id="selectAudioRate">
                                 <option value="0.5">0.5</option>
                                 <option value="1" selected="">1.0</option>
                                 <option value="1.25">1.25</option>
@@ -1233,8 +1233,8 @@
                     </div>
                     <script>
                         var audio = document.getElementById('audio');
-                        var eleSelect = document.getElementById('selectRate');
-                        eleSelect.addEventListener('change', function () {
+                        var eleAudioSelect = document.getElementById('selectAudioRate');
+                        eleAudioSelect.addEventListener('change', function () {
                             audio.playbackRate = this.value;
                         });
                     </script>
@@ -1251,7 +1251,7 @@
                 <video id="video" controls width="100%">
                 </video>
                 <p>选择播放倍速：
-                    <select id="selectRate">
+                    <select id="selectVideoRate">
                         <option value="0.5">0.5</option>
                         <option value="1" selected>1.0</option>
                         <option value="1.25">1.25</option>
@@ -1261,8 +1261,8 @@
                 </p>
                 <script>
                     var video = document.getElementById('video');
-                    var eleSelect = document.getElementById('selectRate');
-                    eleSelect.addEventListener('change', function () {
+                    var eleVideoSelect = document.getElementById('selectVideoRate');
+                    eleVideoSelect.addEventListener('change', function () {
                         video.playbackRate = this.value;
                     });
                     if(Hls.isSupported()){
