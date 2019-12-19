@@ -1233,8 +1233,8 @@
                     </div>
                     <script>
                         var audio = document.getElementById('audio');
-                        var eleAudioSelect = document.getElementById('selectAudioRate');
-                        eleAudioSelect.addEventListener('change', function () {
+                        var audioSelect = document.getElementById('selectAudioRate');
+                        audioSelect.addEventListener('change', function () {
                             audio.playbackRate = this.value;
                         });
                     </script>
@@ -1250,7 +1250,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
                 <video id="video" controls width="100%">
                 </video>
-                <p>选择播放倍速：
+                <p>播放倍速：
                     <select id="selectVideoRate">
                         <option value="0.5">0.5</option>
                         <option value="1" selected>1.0</option>
@@ -1261,8 +1261,8 @@
                 </p>
                 <script>
                     var video = document.getElementById('video');
-                    var eleVideoSelect = document.getElementById('selectVideoRate');
-                    eleVideoSelect.addEventListener('change', function () {
+                    var videoSelect = document.getElementById('selectVideoRate');
+                    videoSelect.addEventListener('change', function () {
                         video.playbackRate = this.value;
                     });
                     if(Hls.isSupported()){
