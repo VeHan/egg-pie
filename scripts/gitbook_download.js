@@ -196,11 +196,11 @@ gitbook  下载
     }
 
 
-    if (!$(".column_title")) {
+    if (!$(".catalog_infos h2")) {
         console.error("页面没有加载完毕，请加载完后重试")
         return
     }
-    console.log("正在下载：" + $(".column_title").innerText)
+    console.log("正在下载：" + $(".catalog_infos h2").innerText)
 
 
     var iframe = document.createElement("iframe")
